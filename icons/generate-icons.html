@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generate Extension Icons</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        // This HTML file can be opened in a browser to generate icon files
+        // Right-click on each canvas and "Save image as..."
+        
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Background - Discord blurple color
+            ctx.fillStyle = '#5865F2';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Add rounded corners
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            const radius = size * 0.2;
+            ctx.moveTo(radius, 0);
+            ctx.arcTo(size, 0, size, size, radius);
+            ctx.arcTo(size, size, 0, size, radius);
+            ctx.arcTo(0, size, 0, 0, radius);
+            ctx.arcTo(0, 0, size, 0, radius);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // Draw translation symbol (A with arrows)
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('A→B', size / 2, size / 2);
+            
+            return canvas;
+        }
+        
+        // Create icons
+        const sizes = [16, 32, 48, 128];
+        const container = document.body;
+        
+        sizes.forEach(size => {
+            const canvas = createIcon(size);
+            canvas.style.margin = '10px';
+            canvas.style.border = '1px solid #ccc';
+            
+            const label = document.createElement('p');
+            label.textContent = `Icon ${size}x${size} - Right-click and save as icon${size}.png`;
+            
+            container.appendChild(label);
+            container.appendChild(canvas);
+            container.appendChild(document.createElement('br'));
+        });
+    </script>
+</body>
+</html>
