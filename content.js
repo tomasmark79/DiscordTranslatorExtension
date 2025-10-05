@@ -246,7 +246,7 @@ class DiscordTranslator {
         transition: opacity 0.3s ease;
         position: absolute;
         left: 0%;
-        top: 50%;
+        top: 90%;
         transform: translateY(-50%);
         z-index: 10;
         pointer-events: auto;
@@ -263,17 +263,18 @@ class DiscordTranslator {
       
       .${this.FLAG_ICON_CLASS} {
         cursor: pointer;
-        font-size: 16px;
-        padding: 4px 6px;
+        font-size: 14.8px;
+        padding: 0;
         border-radius: 4px;
         transition: all 0.3s ease;
         user-select: none;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         background: transparent;
         border: none;
-        width: 22px;
-        height: 22px;
+        width: 16.2px;
+        height: 16.2px;
         color: var(--text-muted, #747f8d);
         position: relative;
       }
@@ -281,8 +282,8 @@ class DiscordTranslator {
       .${this.FLAG_ICON_CLASS}:hover {
         background: rgba(88, 101, 242, 0.15);
         color: #5865f2;
-        transform: scale(1.05);
-        box-shadow: 0 2px 4px rgba(88, 101, 242, 0.2);
+        transform: scale(1.0);
+        box-shadow: none;
       }
       
       /* Better visibility in different Discord themes */
