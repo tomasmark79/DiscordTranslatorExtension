@@ -13,3 +13,4 @@ Automatic Discord message translation to Czech.
 - Preserves code blocks
 - Caches translations
 
+<img width="913" height="147" alt="image" src="https://github.com/user-attachments/assets/aff6ef5b-1940-4c89-88b5-3c87b84fb032" />
