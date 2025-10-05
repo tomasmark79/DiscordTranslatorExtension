@@ -242,32 +242,19 @@ class DiscordTranslator {
       .${this.FLAG_CONTAINER_CLASS} {
         display: inline-flex;
         align-items: center;
-        margin-left: 6px;
         opacity: 0.5;
         transition: opacity 0.3s ease;
-        flex-shrink: 0;
-        vertical-align: middle;
+        position: absolute;
+        left: 0%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        pointer-events: auto;
+      }
+      
+      /* Make parent message have relative positioning for absolute child */
+      [class*="markup"] {
         position: relative;
-        z-index: 1;
-      }
-      
-      /* Special positioning for Discord message structure */
-      [class*="markup"] + .${this.FLAG_CONTAINER_CLASS} {
-        margin-left: 4px;
-        display: inline-flex;
-      }
-      
-      /* Flex wrapper for message + flag */
-      .discord-translator-message-wrapper {
-        display: flex !important;
-        align-items: flex-start !important;
-        gap: 8px !important;
-        flex-wrap: wrap !important;
-      }
-      
-      .discord-translator-message-wrapper .${this.FLAG_CONTAINER_CLASS} {
-        margin-left: 0;
-        margin-top: 2px;
       }
       
       .${this.FLAG_CONTAINER_CLASS}:hover {
