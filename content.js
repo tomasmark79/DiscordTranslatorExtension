@@ -588,6 +588,12 @@ class DiscordTranslator {
       try {
         const messageId = this.getMessageId(messageElement);
         
+        // Skip messages being edited
+        if (this.isMessageBeingEdited(messageElement)) {
+          flagsSkipped++;
+          continue;
+        }
+        
         // Skip if already has flag icon
         if (this.processedMessages.has(messageId)) {
           flagsSkipped++;
@@ -643,10 +649,44 @@ class DiscordTranslator {
   }
 
   /**
+   * Check if message is being edited
+   */
+  isMessageBeingEdited(messageElement) {
+    // Check if the message element itself contains edit fields
+    if (messageElement.querySelector('textarea, [contenteditable="true"]')) {
+      return true;
+    }
+
+    // Check parent message container
+    let parent = messageElement.parentElement;
+    let depth = 0;
+    while (parent && parent !== document.body && depth < 10) {
+      // Check if this is a message container
+      if (parent.role === 'article' || parent.classList?.contains('message')) {
+        // Check if it contains edit fields
+        if (parent.querySelector('textarea, [contenteditable="true"]')) {
+          return true;
+        }
+        break; // Found message container, stop searching
+      }
+      parent = parent.parentElement;
+      depth++;
+    }
+
+    return false;
+  }
+
+  /**
    * Check if message should be skipped (embeds, replies, etc.)
    */
   shouldSkipMessage(messageElement) {
     const messageId = this.getMessageId(messageElement);
+
+    // Skip messages being edited
+    if (this.isMessageBeingEdited(messageElement)) {
+      logger.debug(`⏭️ Skipping message being edited [${messageId}]`);
+      return true;
+    }
 
     // Skip embeds
     let current = messageElement.parentElement;
@@ -688,38 +728,23 @@ class DiscordTranslator {
     try {
       logger.debug(`Creating flag icon for message [${messageId}]`);
       
-      // Strategy 1: Find the direct parent that contains the message text
-      let targetParent = messageElement.parentElement;
+      const targetParent = messageElement.parentElement;
+      if (!targetParent) {
+        logger.debug(`No parent found for message [${messageId}]`);
+        return null;
+      }
+      
       const flagContainer = this.createFlagElement(messageElement, messageId);
       
-      // Check if we can simply add the flag after the message inline
-      if (this.canPlaceInline(messageElement)) {
-        logger.debug(`Placing flag inline for [${messageId}]`);
+      // Simply add the flag after the message element as a sibling
+      // DO NOT wrap or move the original message element to avoid conflicts with Discord's edit functionality
+      if (messageElement.nextSibling) {
         targetParent.insertBefore(flagContainer, messageElement.nextSibling);
-        return flagContainer;
+      } else {
+        targetParent.appendChild(flagContainer);
       }
       
-      // Strategy 2: Look for Discord's message content wrapper
-      const messageWrapper = this.findMessageWrapper(messageElement);
-      if (messageWrapper) {
-        logger.debug(`Found message wrapper for [${messageId}]`);
-        
-        // Create a flex container for message + flag
-        const flexContainer = document.createElement('div');
-        flexContainer.className = 'discord-translator-message-wrapper';
-        
-        // Wrap the existing message element
-        messageWrapper.insertBefore(flexContainer, messageElement);
-        flexContainer.appendChild(messageElement);
-        flexContainer.appendChild(flagContainer);
-        
-        return flagContainer;
-      }
-      
-      // Strategy 3: Fallback - add after message element
-      logger.debug(`Using fallback placement for [${messageId}]`);
-      targetParent.insertBefore(flagContainer, messageElement.nextSibling);
-      
+      logger.debug(`Flag icon placed for [${messageId}]`);
       return flagContainer;
 
     } catch (error) {
@@ -1144,6 +1169,12 @@ class DiscordTranslator {
     const messageElements = [...allMessages].filter(el => {
       // Get unique message ID
       const messageId = this.getMessageId(el);
+
+      // Skip messages being edited
+      if (this.isMessageBeingEdited(el)) {
+        logger.debug('Skipping message in edit mode');
+        return false;
+      }
 
       // Check if already processed using our Set
       const alreadyProcessed = this.processedMessages.has(messageId);
