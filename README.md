@@ -2,6 +2,8 @@
 
 Chrome extension for automatic Discord message translation to Czech.
 
+Requiring LibreTranslate API endpoint on yout infra!
+
 ## Setup
 
 1. Configure LibreTranslate API endpoint in `content.js` (line ~100)
