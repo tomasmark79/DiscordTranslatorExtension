@@ -24,7 +24,8 @@ Vyžaduje LibreTranslate API endpoint na vaší infrastruktuře!
 - Chrome/Chromium browser
 - LibreTranslate API instance (self-hosted or remote)
 
-<img width="994" height="154" alt="image" src="https://github.com/user-attachments/assets/063f8b04-b588-4286-aead-faa2b28832c0" />
+<img width="1155" height="749" alt="image" src="https://github.com/user-attachments/assets/2da6fbbe-9537-4bb2-8c4e-6c2723229c28" />
+
 
 
 
