@@ -86,7 +86,7 @@ async function loadState() {
 }
 
 /**
- * Handle messages from content scripts and popup
+ * Handle messages from content scripts
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   logger.log('📨 Message received, type:', typeof message);
