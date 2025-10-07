@@ -245,8 +245,8 @@ class DiscordTranslator {
         opacity: 0.5;
         transition: opacity 0.3s ease;
         position: absolute;
-        left: 0%;
-        top: 90%;
+        right: 0%;
+        top: 50%;
         transform: translateY(-50%);
         z-index: 10;
         pointer-events: auto;
@@ -263,7 +263,7 @@ class DiscordTranslator {
       
       .${this.FLAG_ICON_CLASS} {
         cursor: pointer;
-        font-size: 14.8px;
+        font-size: 20.72px;
         padding: 0;
         border-radius: 4px;
         transition: all 0.3s ease;
@@ -273,8 +273,8 @@ class DiscordTranslator {
         justify-content: center;
         background: transparent;
         border: none;
-        width: 16.2px;
-        height: 16.2px;
+        width: 22.68px;
+        height: 22.68px;
         color: var(--text-muted, #747f8d);
         position: relative;
       }
