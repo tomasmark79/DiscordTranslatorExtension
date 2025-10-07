@@ -24,5 +24,6 @@ Requiring LibreTranslate API endpoint on your infra!
 - Chrome/Chromium browser
 - LibreTranslate API instance (self-hosted or remote)
 
-<img width="181" height="606" alt="image" src="https://github.com/user-attachments/assets/43d25c2a-4cc3-4f06-ba8f-cb2a056efcb1" />
+<img width="1095" height="950" alt="image" src="https://github.com/user-attachments/assets/88ede985-57af-46ee-8837-aed1161f6738" />
+
 
