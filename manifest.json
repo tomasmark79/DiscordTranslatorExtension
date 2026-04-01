@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DiMeTrans",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Automatic Discord message translation to Czech",
   "author": "Tomáš Mark",
   
@@ -11,7 +11,8 @@
   
   "host_permissions": [
     "*://*.discord.com/*",
-    "http://192.168.79.2/*"
+    "http://127.0.0.1/*",
+    "http://172.1.0.0/*"
   ],
   
   "background": {

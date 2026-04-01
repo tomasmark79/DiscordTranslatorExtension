@@ -1,23 +1,23 @@
 # DiMeTrans
 
-Chrome extension pro překlad Discord zpráv do češtiny.
-Při kliku na ikonu překladu vedle zprávy se zpráva přeloží.
+Chrome extension for translating Discord messages into Czech.
+When you click the translation icon next to a message, the message is translated.
 
-Vyžaduje LibreTranslate API endpoint na vaší infrastruktuře!
+Requires a LibreTranslate API endpoint on your infrastructure!
 
 ## Setup
 
-1. Nakonfigurujte LibreTranslate API endpoint v `content.js` (řádek ~100)
-2. Otevřete Chrome a přejděte na `chrome://extensions/`
-3. Zapněte "Developer mode"
-4. Klikněte na "Load unpacked" a vyberte adresář s rozšířením
+1. Configure the LibreTranslate API endpoint in `content.js` (around line 100)
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable "Developer mode"
+4. Click "Load unpacked" and select the extension directory
 
-## Funkce
+## Features
 
-- **Manuální překlad** - Kliknutím na ikonu překladu vedle zprávy se zpráva přeloží do češtiny
-- **Zachování kódu** - Ignoruje obsah v ``` code blocích (nepřekládá zdrojový kód)
-- **Cache překladů** - Ukládá překlady do paměti, rychlejší opakované překlady
-- **Detekce editace** - Nezasahuje do editace zpráv v Discordu
+- **Manual translation** - Clicking the translation icon next to a message translates it into Czech
+- **Code preservation** - Ignores content in ``` code blocks (does not translate source code)
+- **Translation cache** - Stores translations in memory for faster repeated translations
+- **Edit detection** - Does not interfere with editing messages in Discord
 
 ## Requirements
 

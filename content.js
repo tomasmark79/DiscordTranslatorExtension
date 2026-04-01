@@ -28,6 +28,8 @@ const CONFIG = {
   API_DELAY_MS: 50,                   // Delay between translation requests
   CYCLE_DELAY_MS: 2000,               // Delay between processing cycles
   TARGET_LANGUAGE: 'cs',              // Target language (Czech)
+  TRANSLATION_ALTERNATIVES: 3,        // LibreTranslate alternatives count
+  LIBRETRANSLATE_API_KEY: '',         // Set if your LibreTranslate requires an API key
 
   // UI settings
   DEBUG_STYLING: false,               // Yellow background + red border for translations
@@ -95,12 +97,14 @@ class TranslationService {
     const text = texts[0]; // We're already sending one text at a time
 
     // LibreTranslate requires POST with JSON body
-    const url = 'http://192.168.79.2:5000/translate';
+    const url = 'http://127.0.0.1:5000/translate';
     const data = JSON.stringify({
       q: text,
       source: sourceLang,
       target: targetLang,
-      format: 'text'
+      format: 'text',
+      alternatives: CONFIG.TRANSLATION_ALTERNATIVES,
+      api_key: CONFIG.LIBRETRANSLATE_API_KEY
     });
 
     return { url, data };
@@ -994,40 +998,98 @@ class DiscordTranslator {
 
       logger.api(`🌐 Translating: "${text.substring(0, 50)}..."`);
 
-      const responseText = await new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
-          JSON.stringify({
-            type: 'fetch',
-            args: [url, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-              },
-              body: data
-            }]
-          }),
-          (response) => {
-            if (chrome.runtime.lastError) {
-              reject(chrome.runtime.lastError);
-            } else {
-              resolve(response);
+      const sendTranslationRequest = async (requestBody) => {
+        const responseText = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage(
+            JSON.stringify({
+              type: 'fetch',
+              args: [url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+              }]
+            }),
+            (response) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              } else {
+                resolve(response);
+              }
             }
-          }
-        );
-      });
+          );
+        });
 
-      if (responseText) {
-        const response = JSON.parse(responseText);
-        const translatedText = response.translatedText;
-        
-        if (translatedText && translatedText.trim().length > 0) {
-          logger.api(`✅ Translation: "${translatedText.substring(0, 50)}..."`);
-          return translatedText;
+        let payload;
+        try {
+          payload = typeof responseText === 'string' ? JSON.parse(responseText) : responseText;
+        } catch {
+          payload = responseText;
         }
+
+        // New background format: { ok, status, statusText, url, text }
+        if (payload && typeof payload === 'object' && Object.prototype.hasOwnProperty.call(payload, 'ok')) {
+          if (!payload.ok) {
+            throw new Error(`Translation API request failed (${payload.status} ${payload.statusText}): ${String(payload.text || '').substring(0, 200)}`);
+          }
+          return payload.text;
+        }
+
+        if (payload && typeof payload === 'object' && payload.error) {
+          // Error forwarded by background script
+          throw new Error(`Background fetch error: ${payload.error}`);
+        }
+
+        // Legacy background format: plain response text
+        return typeof payload === 'string' ? payload : null;
+      };
+
+      let requestBody;
+      try {
+        requestBody = JSON.parse(data);
+      } catch {
+        throw new Error('Failed to build translation request body');
       }
 
-      throw new Error('Invalid API response');
+      let apiResponseText;
+      try {
+        apiResponseText = await sendTranslationRequest(requestBody);
+      } catch (primaryError) {
+        const is500 = String(primaryError?.message || '').includes('Translation API request failed (500');
+        if (!is500) {
+          throw primaryError;
+        }
+
+        // Some LibreTranslate builds fail on optional fields; retry with minimum payload.
+        logger.warn('Primary request failed with HTTP 500, retrying with minimal LibreTranslate payload');
+        apiResponseText = await sendTranslationRequest({
+          q: text,
+          source: 'auto',
+          target: CONFIG.TARGET_LANGUAGE,
+          format: 'text'
+        });
+      }
+
+      if (!apiResponseText || typeof apiResponseText !== 'string') {
+        throw new Error('Empty or invalid response payload from translation API');
+      }
+
+      let response;
+      try {
+        response = JSON.parse(apiResponseText);
+      } catch {
+        throw new Error(`Translation API returned non-JSON response: ${apiResponseText.substring(0, 200)}`);
+      }
+
+      const translatedText = response?.translatedText || response?.translated_text || response?.data?.translatedText || response?.data?.translated_text;
+
+      if (translatedText && translatedText.trim().length > 0) {
+        logger.api(`✅ Translation: "${translatedText.substring(0, 50)}..."`);
+        return translatedText;
+      }
+
+      throw new Error(`Invalid API response shape: ${apiResponseText.substring(0, 200)}`);
 
     } catch (error) {
       logger.error('Translation API error:', error);

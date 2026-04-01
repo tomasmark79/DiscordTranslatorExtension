@@ -110,7 +110,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           logger.log('📄 Fetch response text length:', text.length);
           logger.log('📄 First 200 chars:', text.substring(0, 200));
 
-          sendResponse(text);
+          sendResponse(JSON.stringify({
+            ok: response.ok,
+            status: response.status,
+            statusText: response.statusText,
+            url,
+            text
+          }));
           break;
         }
 
